@@ -17,7 +17,9 @@ class RequestParserTests: XCTestCase {
 
 	func testRecognizesPOSTVerb() throws {
 		let parser = RequestParser()
-		let request = try parser.request(parsing: "POST /path HTTP/1.1\n")
+		let request = try parser.request(parsing: "POST /path HTTP/1.1\n" +
+			"Content-Length: 4\n\n" +
+			"body")
 		XCTAssertEqual(request.verb, .post)
 	}
 }
