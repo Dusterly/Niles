@@ -4,4 +4,5 @@ public struct Request {
 
 public enum Verb: String {
 	case get = "GET"
+	case post = "POST"
 }

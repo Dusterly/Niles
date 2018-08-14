@@ -14,11 +14,18 @@ class RequestParserTests: XCTestCase {
 		let request = try parser.request(parsing: "GET /path HTTP/1.1\n")
 		XCTAssertEqual(request.verb, .get)
 	}
+
+	func testRecognizesPOSTVerb() throws {
+		let parser = RequestParser()
+		let request = try parser.request(parsing: "POST /path HTTP/1.1\n")
+		XCTAssertEqual(request.verb, .post)
+	}
 }
 
 extension RequestParserTests {
 	static let allTests = [
 		("testThrowsForMalformedRequest", testThrowsForMalformedRequest),
 		("testRecognizesGETVerb", testRecognizesGETVerb),
+		("testRecognizesPOSTVerb", testRecognizesPOSTVerb),
 	]
 }
