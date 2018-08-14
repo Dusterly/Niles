@@ -1,0 +1,9 @@
+{
+	"editor.detectIndentation": false,
+	"editor.insertSpaces": false,
+
+	"files.encoding": "utf8",
+	"files.exclude": {
+		".build": true
+	}
+}
