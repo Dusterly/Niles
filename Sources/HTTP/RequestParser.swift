@@ -4,12 +4,19 @@ public class RequestParser {
 	public init() {}
 
 	public func request(reading input: ByteStream) throws -> Request {
-		let verbData = try input.data(readingUntil: 32)
-		guard let verbString = String(data: verbData, encoding: .ascii),
-			let verb = Verb(rawValue: verbString) else { throw RequestParserError.some }
-		let pathData = try input.data(readingUntil: 32)
-		guard let pathString = String(data: pathData, encoding: .ascii) else { throw RequestParserError.some } 
-		return Request(verb: verb, path: pathString)
+		return Request(
+			verb: try self.verb(reading: input),
+			path: try self.path(reading: input))
+	}
+
+	private func verb(reading stream: ByteStream) throws -> Verb {
+		let verbString = try stream.nextWord()
+		guard let verb = Verb(rawValue: verbString) else { throw RequestParserError.some }
+		return verb
+	}
+
+	private func path(reading stream: ByteStream) throws -> String {
+		return try stream.nextWord()
 	}
 }
 
@@ -26,5 +33,11 @@ private extension ByteStream {
 			bytes.append(byte)
 		}
 		return bytes
+	}
+
+	func nextWord() throws -> String {
+		let wordData = try data(readingUntil: 32)
+		guard let word = String(data: wordData, encoding: .ascii) else { throw RequestParserError.some }
+		return word
 	}
 }
