@@ -6,7 +6,7 @@ public class RequestParser {
 	public func request(parsing input: String) throws -> Request {
 		let verbString = String(input.prefix { $0 != " " })
 		guard let verb = Verb(rawValue: verbString) else { throw RequestParserError.some }
-		return Request(verb: verb)
+		return Request(verb: verb, path: "/path")
 	}
 }
 
