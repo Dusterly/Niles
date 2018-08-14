@@ -6,8 +6,10 @@ public class RequestParser {
 	public func request(reading input: ByteStream) throws -> Request {
 		let verbData = try input.data(readingUntil: 32)
 		guard let verbString = String(data: verbData, encoding: .ascii),
-			let verb = Verb(rawValue: verbString) else { throw RequestParserError.some } 
-		return Request(verb: verb, path: "/path")
+			let verb = Verb(rawValue: verbString) else { throw RequestParserError.some }
+		let pathData = try input.data(readingUntil: 32)
+		guard let pathString = String(data: pathData, encoding: .ascii) else { throw RequestParserError.some } 
+		return Request(verb: verb, path: pathString)
 	}
 }
 
