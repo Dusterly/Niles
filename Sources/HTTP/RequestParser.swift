@@ -4,9 +4,10 @@ public class RequestParser {
 	public init() {}
 
 	public func request(reading input: ByteStream) throws -> Request {
-		return Request(
-			verb: try self.verb(reading: input),
-			path: try self.path(reading: input))
+		var builder = RequestBuilder()
+		builder.verb = try self.verb(reading: input)
+		builder.path = try self.path(reading: input)
+		return try builder.request()
 	}
 
 	private func verb(reading stream: ByteStream) throws -> Verb {
