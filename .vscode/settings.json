@@ -4,6 +4,7 @@
 
 	"files.encoding": "utf8",
 	"files.exclude": {
-		".build": true
+		".build": true,
+		"*.xcodeproj": true
 	}
 }
