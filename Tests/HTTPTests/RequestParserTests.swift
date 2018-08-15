@@ -31,6 +31,11 @@ class RequestParserTests: XCTestCase {
 		XCTAssertEqual(request.path, "/företag")
 	}
 
+	func testRecognizesVersion() throws {
+		let request = try self.request(with: "GET /path HTTP/1.1\n")
+		XCTAssertEqual(request.version, "HTTP/1.1")
+	}
+
 	private func request(with text: String) throws -> Request {
 		let data = text.data(using: .ascii)!
 		let stream = InputStream(openWith: data)
@@ -63,5 +68,6 @@ extension RequestParserTests {
 		("testRecognizesPOSTVerb", testRecognizesPOSTVerb),
 		("testRecognizesPath", testRecognizesPath),
 		("testDecodesPathToUTF8", testDecodesPathToUTF8),
+		("testRecognizesVersion", testRecognizesVersion),
 	]
 }

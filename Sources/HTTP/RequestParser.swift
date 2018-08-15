@@ -7,6 +7,7 @@ public class RequestParser {
 		var builder = RequestBuilder()
 		builder.verb = try self.verb(reading: input)
 		builder.path = try self.path(reading: input)
+		builder.version = try input.string(readingUntil: 10)
 		return try builder.request()
 	}
 
@@ -32,10 +33,14 @@ private extension ByteStream {
 		return bytes
 	}
 
-	func nextWord() throws -> String {
-		let wordData = try data(readingUntil: 32)
+	func string(readingUntil stopByte: UInt8) throws -> String {
+		let wordData = try data(readingUntil: stopByte)
 		guard let word = decodedString(ascii: wordData) else { throw RequestParserError.invalidFormat }
 		return word
+	}
+
+	func nextWord() throws -> String {
+		return try string(readingUntil: 32)
 	}
 
 	private func decodedString(ascii bytes: Data) -> String? {
