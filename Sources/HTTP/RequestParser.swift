@@ -13,6 +13,8 @@ public class RequestParser {
 			builder.headers[name] = value.trimmingCharacters(in: .whitespaces)
 		}
 
+		builder.body = try body(reading: input, withLengthFrom: builder.headers)
+
 		return try builder.request()
 	}
 
@@ -35,6 +37,12 @@ public class RequestParser {
 	private func path(reading stream: ByteStream) throws -> String {
 		return try stream.string(readingUntil: .space)
 	}
+
+	private func body(reading stream: ByteStream, withLengthFrom headers: [String: String]) throws -> Data? {
+		guard let contentLengthHeader = headers["Content-Length"] else { return nil }
+		guard let contentLength = Int(contentLengthHeader) else { throw RequestParserError.invalidFormat }
+		return try stream.data(readingLength: contentLength)
+	}
 }
 
 private enum ControlByte: UInt8 {
@@ -43,6 +51,15 @@ private enum ControlByte: UInt8 {
 }
 
 private extension ByteStream {
+	func data(readingLength count: Int) throws -> Data {
+		var bytes = Data()
+		for _ in 1...count {
+			let byte = try nextByte()
+			bytes.append(byte)
+		}
+		return bytes
+	}
+
 	func data(readingUntil stopByte: ControlByte) throws -> Data {
 		var bytes = Data()
 		while true {

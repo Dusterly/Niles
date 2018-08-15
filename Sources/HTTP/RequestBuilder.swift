@@ -1,8 +1,11 @@
+import Foundation
+
 internal struct RequestBuilder {
 	public var verb: Verb?
 	public var path: String?
 	public var version: String?
 	public var headers: [String: String] = [:]
+	public var body: Data?
 
 	internal init() {}
 
@@ -14,7 +17,8 @@ internal struct RequestBuilder {
 			verb: verb,
 			path: path,
 			version: version,
-			headers: headers
+			headers: headers,
+			body: body
 		)
 	}
 }
