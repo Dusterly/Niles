@@ -3,37 +3,39 @@ import Foundation
 import HTTP
 
 class RequestParserTests: XCTestCase {
+	let parser = RequestParser()
+
 	func testThrowsForMalformedRequest() {
-		let parser = RequestParser()
 		let malformedRequest = "invalid request"
-		let stream = InputStream(openWith: malformedRequest.data(using: .ascii)!)
-		XCTAssertThrowsError(try parser.request(reading: stream))
+		XCTAssertThrowsError(try self.request(with: malformedRequest))
 	}
 
 	func testRecognizesGETVerb() throws {
-		let parser = RequestParser()
-		let request = try parser.request(reading: InputStream(openWith: "GET /path HTTP/1.1\n".data(using: .ascii)!))
+		let request = try self.request(with: "GET /path HTTP/1.1\n")
 		XCTAssertEqual(request.verb, .get)
 	}
 
 	func testRecognizesPOSTVerb() throws {
-		let parser = RequestParser()
-		let request = try parser.request(reading: InputStream(openWith: ("POST /path HTTP/1.1\n" +
+		let request = try self.request(with: "POST /path HTTP/1.1\n" +
 			"Content-Length: 4\n\n" +
-			"body").data(using: .ascii)!))
+			"body")
 		XCTAssertEqual(request.verb, .post)
 	}
 
 	func testRecognizesPath() throws {
-		let parser = RequestParser()
-		let request = try parser.request(reading: InputStream(openWith: "GET /path HTTP/1.1\n".data(using: .ascii)!))
+		let request = try self.request(with: "GET /path HTTP/1.1\n")
 		XCTAssertEqual(request.path, "/path")
 	}
 
 	func testDecodesPathToUTF8() throws {
-		let parser = RequestParser()
-		let request = try parser.request(reading: InputStream(openWith: "GET /f%C3%B6retag HTTP/1.1\n".data(using: .ascii)!))
+		let request = try self.request(with: "GET /f%C3%B6retag HTTP/1.1\n")
 		XCTAssertEqual(request.path, "/företag")
+	}
+
+	private func request(with text: String) throws -> Request {
+		let data = text.data(using: .ascii)!
+		let stream = InputStream(openWith: data)
+		return try parser.request(reading: stream)
 	}
 }
 
