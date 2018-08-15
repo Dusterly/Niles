@@ -13,13 +13,18 @@ class ResponseFormatterTests: XCTestCase {
 	func testOutputsStatusCode() {
 		let response = CustomizableResponse(statusCode: .ok)
 		let outputString = formatter.output(response: response)
-		XCTAssertTrue(outputString.contains(" 200 OK"), "'\(outputString)' does not contain '200 OK'.")
+		assert(outputString, matchesRegularExpression: " 200 OK$")
 	}
 
 	func testOutputsHeaders() {
 		let response = CustomizableResponse(headers: ["SomeHeader": "value"])
 		let outputString = formatter.output(response: response)
-		XCTAssertTrue(outputString.contains("SomeHeader: value"), "'\(outputString)' does not contain header 'SomeHeader: value'.")
+		assert(outputString, matchesRegularExpression: "^SomeHeader: value$")
+	}
+
+	private func assert(_ value: String, matchesRegularExpression regex: String, line: UInt = #line) {
+		XCTAssertNotNil(value .range(of: "(?m)\(regex)", options: [.regularExpression]),
+						"'\(value)' does not match regular expression '\(regex)'.", line: line)
 	}
 }
 
