@@ -62,7 +62,7 @@ class RequestParserTests: XCTestCase {
 		let request = try self.request(with: "POST /path HTTP/1.1\n" +
 			"Content-Length: 4\n\n" +
 			"body")
-		XCTAssertEqual(request.bodyString, "body")
+		XCTAssertEqual(string(fromASCII: request.body), "body")
 	}
 
 	private func request(with text: String) throws -> Request {
@@ -70,12 +70,10 @@ class RequestParserTests: XCTestCase {
 		let stream = InputStream(openWith: data)
 		return try parser.request(reading: stream)
 	}
-}
 
-extension Request {
-	var bodyString: String? {
-		guard let body = body else { return nil }
-		return String(data: body, encoding: .ascii)
+	private func string(fromASCII data: Data?) -> String? {
+		guard let data = data else { return nil }
+		return String(data: data, encoding: .ascii)
 	}
 }
 
