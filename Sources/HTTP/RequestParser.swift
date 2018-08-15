@@ -21,10 +21,6 @@ public class RequestParser {
 	}
 }
 
-public enum RequestParserError: Error {
-	case invalidFormat
-}
-
 private extension ByteStream {
 	func data(readingUntil stopByte: UInt8) throws -> Data {
 		var bytes = Data()
