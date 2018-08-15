@@ -20,6 +20,12 @@ class ResponseFormatterTests: XCTestCase {
 		assert(outputString, matchesRegularExpression: "^SomeHeader: value$")
 	}
 
+	func testOutputsBody() {
+		let outputString = output(formatting: CustomizableResponse(body: "body"))
+		assert(outputString, matchesRegularExpression: "^Content-Length: 4$")
+		assert(outputString, matchesRegularExpression: "^\\r\\nbody$")
+	}
+
 	private func output(formatting response: Response) -> String {
 		let output = VisibleOutput()
 		formatter.write(response: response, to: output)
@@ -47,10 +53,12 @@ private class VisibleOutput: DataWritable {
 private struct CustomizableResponse: Response {
 	var statusCode: StatusCode
 	var headers: [String: String]
+	var body: Data?
 
-	init(statusCode: StatusCode = .ok, headers: [String: String] = [:]) {
+	init(statusCode: StatusCode = .ok, headers: [String: String] = [:], body: String? = nil) {
 		self.statusCode = statusCode
 		self.headers = headers
+		self.body = body?.data(using: .ascii)
 	}
 }
 
@@ -59,5 +67,6 @@ extension ResponseFormatterTests {
 		("testOutputsHTTPVersion", testOutputsHTTPVersion),
 		("testOutputsStatusCode", testOutputsStatusCode),
 		("testOutputsHeaders", testOutputsHeaders),
+		("testOutputsBody", testOutputsBody),
 	]
 }

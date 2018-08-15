@@ -8,9 +8,20 @@ public class ResponseFormatter {
 	}
 
 	public func write(response: Response, to output: DataWritable) {
+		var headers = response.headers
+
+		if let body = response.body, headers["Content-Length"] == nil {
+			headers["Content-Length"] = "\(body.count)"
+		}
+
 		output.write("\(httpVersion) \(response.statusCode.rawValue)\n")
-		for (header, value) in response.headers {
-			output.write("\(header): \(value)")
+		for (header, value) in headers {
+			output.write("\(header): \(value)\n")
+		}
+
+		if let body = response.body {
+			output.write("\r\n")
+			output.write(body)
 		}
 	}
 }
