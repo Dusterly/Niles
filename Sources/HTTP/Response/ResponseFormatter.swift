@@ -14,13 +14,13 @@ public class ResponseFormatter {
 			headers["Content-Length"] = "\(body.count)"
 		}
 
-		output.write("\(httpVersion) \(response.statusCode.rawValue)\n")
+		output.write("\(httpVersion) \(response.statusCode.rawValue)\r\n")
 		for (header, value) in headers {
 			output.write("\(header): \(value)\n")
 		}
+		output.write("\r\n")
 
 		if let body = response.body {
-			output.write("\r\n")
 			output.write(body)
 		}
 	}

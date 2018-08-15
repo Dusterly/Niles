@@ -26,6 +26,11 @@ class ResponseFormatterTests: XCTestCase {
 		assert(outputString, matchesRegularExpression: "^\\r\\nbody$")
 	}
 
+	func testOutputsEmptyNewlineEvenIfNoBody() {
+		let outputString = output(formatting: CustomizableResponse(statusCode: .noContent))
+		assert(outputString, matchesRegularExpression: "\\r\\n\\r\\n$")
+	}
+
 	private func output(formatting response: Response) -> String {
 		let output = VisibleOutput()
 		formatter.write(response: response, to: output)
@@ -68,5 +73,6 @@ extension ResponseFormatterTests {
 		("testOutputsStatusCode", testOutputsStatusCode),
 		("testOutputsHeaders", testOutputsHeaders),
 		("testOutputsBody", testOutputsBody),
+		("testOutputsEmptyNewlineEvenIfNoBody", testOutputsEmptyNewlineEvenIfNoBody),
 	]
 }
