@@ -8,18 +8,16 @@ public class ResponseFormatter {
 	}
 
 	public func write(response: Response, to output: DataWritable) {
-		output.write(self.output(response: response).data(using: .ascii)!)
-	}
-
-	private func output(response: Response) -> String {
-		return "\(httpVersion) \(response.statusCode.rawValue)\n\(output(headers: response.headers))"
-	}
-
-	private func output(headers: [String: String]) -> String {
-		var s = ""
-		for (header, value) in headers {
-			s += "\(header): \(value)\n"
+		output.write("\(httpVersion) \(response.statusCode.rawValue)\n")
+		for (header, value) in response.headers {
+			output.write("\(header): \(value)")
 		}
-		return s
+	}
+}
+
+private extension DataWritable {
+	func write(_ string: String) {
+		guard let data = string.data(using: .ascii) else { return }
+		write(data)
 	}
 }
