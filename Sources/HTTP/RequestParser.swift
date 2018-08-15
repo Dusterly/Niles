@@ -9,15 +9,21 @@ public class RequestParser {
 		builder.path = try self.path(reading: input)
 		builder.version = try input.string(readingUntil: .newline)
 
-		while let line = try? input.string(readingUntil: .newline), line != "" {
-			guard let rangeOfColon = line.range(of: ":") else { continue }
-
-			let name = String(line[line.startIndex..<rangeOfColon.lowerBound])
-			let value = line[rangeOfColon.upperBound..<line.endIndex]
+		while let (name, value) = try header(reading: input) {
 			builder.headers[name] = value.trimmingCharacters(in: .whitespaces)
 		}
 
 		return try builder.request()
+	}
+
+	private func header(reading stream: ByteStream) throws -> (String, String)? {
+		let line = try stream.string(readingUntil: .newline)
+		guard line != "" else { return nil }
+		guard let rangeOfColon = line.range(of: ":") else { throw RequestParserError.invalidFormat }
+
+		let name = line[line.startIndex..<rangeOfColon.lowerBound]
+		let value = line[rangeOfColon.upperBound..<line.endIndex]
+		return (String(name), String(value))
 	}
 
 	private func verb(reading stream: ByteStream) throws -> Verb {
