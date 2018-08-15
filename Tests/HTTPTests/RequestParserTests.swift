@@ -52,6 +52,12 @@ class RequestParserTests: XCTestCase {
 		XCTAssertEqual(request.headers["SomeHeader"], "some value")
 	}
 
+	func testAllowsColonInHeaderValues() throws {
+		let request = try self.request(with: "GET /path HTTP/1.1\n" +
+			"SomeHeader: value: x\n\n")
+		XCTAssertEqual(request.headers["SomeHeader"], "value: x")
+	}
+
 	private func request(with text: String) throws -> Request {
 		let data = text.data(using: .ascii)!
 		let stream = InputStream(openWith: data)
@@ -88,5 +94,6 @@ extension RequestParserTests {
 		("testDoesNotRequireNewlineAfterGET", testDoesNotRequireNewlineAfterGET),
 		("testIgnoresCarriageReturn", testIgnoresCarriageReturn),
 		("testRecognizesHeaders", testRecognizesHeaders),
+		("testAllowsColonInHeaderValues", testAllowsColonInHeaderValues),
 	]
 }
