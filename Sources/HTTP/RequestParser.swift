@@ -46,6 +46,7 @@ private extension ByteStream {
 
 	private func decodedString(ascii bytes: Data) -> String? {
 		return String(bytes: bytes, encoding: .ascii)?
+			.trimmingCharacters(in: .controlCharacters)
 			.removingPercentEncoding
 	}
 }
