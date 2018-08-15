@@ -6,8 +6,7 @@ class RequestParserTests: XCTestCase {
 	let parser = RequestParser()
 
 	func testThrowsForMalformedRequest() {
-		let malformedRequest = "invalid request"
-		XCTAssertThrowsError(try self.request(with: malformedRequest))
+		XCTAssertThrowsError(try self.request(with: "invalid request"))
 	}
 
 	func testRecognizesGETVerb() throws {
