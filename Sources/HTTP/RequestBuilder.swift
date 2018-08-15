@@ -5,7 +5,7 @@ internal struct RequestBuilder {
 	internal init() {}
 
 	public func request() throws -> Request {
-		guard let verb = verb, let path = path else { throw RequestParserError.some }
+		guard let verb = verb, let path = path else { throw RequestParserError.invalidFormat }
 		return Request(verb: verb, path: path)
 	}
 }

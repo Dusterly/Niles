@@ -12,7 +12,7 @@ public class RequestParser {
 
 	private func verb(reading stream: ByteStream) throws -> Verb {
 		let verbString = try stream.nextWord()
-		guard let verb = Verb(rawValue: verbString) else { throw RequestParserError.some }
+		guard let verb = Verb(rawValue: verbString) else { throw RequestParserError.invalidFormat }
 		return verb
 	}
 
@@ -22,7 +22,7 @@ public class RequestParser {
 }
 
 public enum RequestParserError: Error {
-	case some
+	case invalidFormat
 }
 
 private extension ByteStream {
@@ -38,7 +38,7 @@ private extension ByteStream {
 
 	func nextWord() throws -> String {
 		let wordData = try data(readingUntil: 32)
-		guard let word = String(data: wordData, encoding: .ascii) else { throw RequestParserError.some }
+		guard let word = String(data: wordData, encoding: .ascii) else { throw RequestParserError.invalidFormat }
 		return word
 	}
 }
