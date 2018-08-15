@@ -79,17 +79,17 @@ extension Request {
 	}
 }
 
-extension InputStream: ByteStream {
+extension InputStream: DataReadable {
 	public convenience init(openWith data: Data) {
 		self.init(data: data)
 		open()
 	}
 
-	public func nextByte() throws -> UInt8 {
-		var buffer: [UInt8] = Array(repeating: 0, count: 1)
-		let actualCount = read(&buffer, maxLength: 1)
-		guard actualCount == 1 else { throw StreamError.endOfStream }
-		return buffer[0]
+	public func data(readingLength count: Int) throws -> Data {
+		var buffer: [UInt8] = Array(repeating: 0, count: count)
+		let actualCount = read(&buffer, maxLength: count)
+		guard actualCount == count else { throw StreamError.endOfStream }
+		return Data(bytes: buffer)
 	}
 }
 
