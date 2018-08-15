@@ -8,13 +8,9 @@ public class ResponseFormatter {
 	}
 
 	public func write(response: Response, to output: DataWritable) {
-		var headers = response.headers
-
-		if let body = response.body, headers["Content-Length"] == nil {
-			headers["Content-Length"] = "\(body.count)"
-		}
-
 		output.write("\(httpVersion) \(response.statusCode.rawValue)\r\n")
+
+		let headers = response.headersAddingContentLength
 		for (header, value) in headers {
 			output.write("\(header): \(value)\n")
 		}
@@ -23,6 +19,16 @@ public class ResponseFormatter {
 		if let body = response.body {
 			output.write(body)
 		}
+	}
+}
+
+private extension Response {
+	var headersAddingContentLength: [String: String] {
+		guard let body = body else { return headers }
+
+		var modifiedHeaders = headers
+		modifiedHeaders["Content-Length"] = "\(body.count)"
+		return modifiedHeaders
 	}
 }
 
