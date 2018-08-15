@@ -25,6 +25,7 @@ public class ResponseFormatter {
 private extension Response {
 	var headersAddingContentLength: [String: String] {
 		guard let body = body else { return headers }
+		if headers["Content-Length"] != nil { return headers }
 
 		var modifiedHeaders = headers
 		modifiedHeaders["Content-Length"] = "\(body.count)"

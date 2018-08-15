@@ -26,6 +26,12 @@ class ResponseFormatterTests: XCTestCase {
 		assert(outputString, matchesRegularExpression: "^\\r\\nbody$")
 	}
 
+	func testHonorsExplicitContentLength() {
+		let outputString = output(formatting: CustomizableResponse(headers: ["Content-Length": "3"], body: "body"))
+		assert(outputString, matchesRegularExpression: "^Content-Length: 3$")
+		assert(outputString, matchesRegularExpression: "^\\r\\nbody$")
+	}
+
 	func testOutputsEmptyNewlineEvenIfNoBody() {
 		let outputString = output(formatting: CustomizableResponse(statusCode: .noContent))
 		assert(outputString, matchesRegularExpression: "\\r\\n\\r\\n$")
@@ -74,5 +80,6 @@ extension ResponseFormatterTests {
 		("testOutputsHeaders", testOutputsHeaders),
 		("testOutputsBody", testOutputsBody),
 		("testOutputsEmptyNewlineEvenIfNoBody", testOutputsEmptyNewlineEvenIfNoBody),
+		("testHonorsExplicitContentLength", testHonorsExplicitContentLength),
 	]
 }
