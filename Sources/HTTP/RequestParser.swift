@@ -34,7 +34,12 @@ private extension ByteStream {
 
 	func nextWord() throws -> String {
 		let wordData = try data(readingUntil: 32)
-		guard let word = String(data: wordData, encoding: .ascii) else { throw RequestParserError.invalidFormat }
+		guard let word = decodedString(ascii: wordData) else { throw RequestParserError.invalidFormat }
 		return word
+	}
+
+	private func decodedString(ascii bytes: Data) -> String? {
+		return String(bytes: bytes, encoding: .ascii)?
+			.removingPercentEncoding
 	}
 }

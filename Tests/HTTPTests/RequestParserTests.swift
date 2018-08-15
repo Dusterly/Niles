@@ -29,6 +29,12 @@ class RequestParserTests: XCTestCase {
 		let request = try parser.request(reading: InputStream(openWith: "GET /path HTTP/1.1\n".data(using: .ascii)!))
 		XCTAssertEqual(request.path, "/path")
 	}
+
+	func testDecodesPathToUTF8() throws {
+		let parser = RequestParser()
+		let request = try parser.request(reading: InputStream(openWith: "GET /f%C3%B6retag HTTP/1.1\n".data(using: .ascii)!))
+		XCTAssertEqual(request.path, "/företag")
+	}
 }
 
 extension InputStream: ByteStream {
@@ -55,5 +61,6 @@ extension RequestParserTests {
 		("testRecognizesGETVerb", testRecognizesGETVerb),
 		("testRecognizesPOSTVerb", testRecognizesPOSTVerb),
 		("testRecognizesPath", testRecognizesPath),
+		("testDecodesPathToUTF8", testDecodesPathToUTF8),
 	]
 }
