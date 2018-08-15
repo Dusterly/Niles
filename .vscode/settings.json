@@ -2,8 +2,11 @@
 	"editor.detectIndentation": false,
 	"editor.insertSpaces": false,
 
+	"files.insertFinalNewline": true,
+	"files.trimFinalNewlines": true,
 	"files.encoding": "utf8",
 	"files.exclude": {
-		".build": true
+		".build": true,
+		"*.xcodeproj": true
 	}
 }
