@@ -2,6 +2,7 @@ internal struct RequestBuilder {
 	public var verb: Verb?
 	public var path: String?
 	public var version: String?
+	public var headers: [String: String] = [:]
 
 	internal init() {}
 
@@ -9,6 +10,11 @@ internal struct RequestBuilder {
 		guard let verb = verb else { throw RequestParserError.invalidFormat }
 		guard let path = path else { throw RequestParserError.invalidFormat }
 		guard let version = version else { throw RequestParserError.invalidFormat }
-		return Request(verb: verb, path: path, version: version)
+		return Request(
+			verb: verb,
+			path: path,
+			version: version,
+			headers: headers
+		)
 	}
 }

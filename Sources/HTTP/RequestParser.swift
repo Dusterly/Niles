@@ -8,6 +8,15 @@ public class RequestParser {
 		builder.verb = try self.verb(reading: input)
 		builder.path = try self.path(reading: input)
 		builder.version = try input.string(readingUntil: .newline)
+
+		while let line = try? input.string(readingUntil: .newline), line != "" {
+			guard let rangeOfColon = line.range(of: ":") else { continue }
+
+			let name = String(line[line.startIndex..<rangeOfColon.lowerBound])
+			let value = line[rangeOfColon.upperBound..<line.endIndex]
+			builder.headers[name] = value.trimmingCharacters(in: .whitespaces)
+		}
+
 		return try builder.request()
 	}
 
