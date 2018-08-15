@@ -1,3 +1,5 @@
+import Foundation
+
 public class ResponseFormatter {
 	private let httpVersion: String
 
@@ -5,7 +7,11 @@ public class ResponseFormatter {
 		self.httpVersion = httpVersion
 	}
 
-	public func output(response: Response) -> String {
+	public func write(response: Response, to output: DataWritable) {
+		output.write(self.output(response: response).data(using: .ascii)!)
+	}
+
+	private func output(response: Response) -> String {
 		return "\(httpVersion) \(response.statusCode.rawValue)\n\(output(headers: response.headers))"
 	}
 

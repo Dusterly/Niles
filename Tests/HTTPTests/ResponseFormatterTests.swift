@@ -6,25 +6,41 @@ class ResponseFormatterTests: XCTestCase {
 	let formatter = ResponseFormatter(httpVersion: "HTTP/1.1")
 
 	func testOutputsHTTPVersion() {
-		let outputString = formatter.output(response: CustomizableResponse())
+		let outputString = output(formatting: CustomizableResponse())
 		XCTAssertTrue(outputString.hasPrefix("HTTP/1.1 "), "'\(outputString)' does not start with 'HTTP/1.1 '.")
 	}
 
 	func testOutputsStatusCode() {
-		let response = CustomizableResponse(statusCode: .ok)
-		let outputString = formatter.output(response: response)
+		let outputString = output(formatting: CustomizableResponse(statusCode: .ok))
 		assert(outputString, matchesRegularExpression: " 200 OK$")
 	}
 
 	func testOutputsHeaders() {
-		let response = CustomizableResponse(headers: ["SomeHeader": "value"])
-		let outputString = formatter.output(response: response)
+		let outputString = output(formatting: CustomizableResponse(headers: ["SomeHeader": "value"]))
 		assert(outputString, matchesRegularExpression: "^SomeHeader: value$")
+	}
+
+	private func output(formatting response: Response) -> String {
+		let output = VisibleOutput()
+		formatter.write(response: response, to: output)
+		return output.string
 	}
 
 	private func assert(_ value: String, matchesRegularExpression regex: String, line: UInt = #line) {
 		XCTAssertNotNil(value .range(of: "(?m)\(regex)", options: [.regularExpression]),
 						"'\(value)' does not match regular expression '\(regex)'.", line: line)
+	}
+}
+
+private class VisibleOutput: DataWritable {
+	private var data = Data()
+
+	var string: String {
+		return String(data: data, encoding: .utf8) ?? ""
+	}
+
+	func write(_ data: Data) {
+		self.data.append(data)
 	}
 }
 
