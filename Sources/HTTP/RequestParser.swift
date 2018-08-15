@@ -12,13 +12,13 @@ public class RequestParser {
 	}
 
 	private func verb(reading stream: ByteStream) throws -> Verb {
-		let verbString = try stream.nextWord()
+		let verbString = try stream.string(readingUntil: .space)
 		guard let verb = Verb(rawValue: verbString) else { throw RequestParserError.invalidFormat }
 		return verb
 	}
 
 	private func path(reading stream: ByteStream) throws -> String {
-		return try stream.nextWord()
+		return try stream.string(readingUntil: .space)
 	}
 }
 
@@ -42,10 +42,6 @@ private extension ByteStream {
 		let wordData = try data(readingUntil: stopByte)
 		guard let word = decodedString(ascii: wordData) else { throw RequestParserError.invalidFormat }
 		return word
-	}
-
-	func nextWord() throws -> String {
-		return try string(readingUntil: .space)
 	}
 
 	private func decodedString(ascii bytes: Data) -> String? {
