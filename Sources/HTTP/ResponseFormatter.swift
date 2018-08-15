@@ -5,7 +5,7 @@ public class ResponseFormatter {
 		self.httpVersion = httpVersion
 	}
 
-	public func response() -> String {
-		return "\(httpVersion) "
+	public func output(response: Response) -> String {
+		return "\(httpVersion) \(response.statusCode.rawValue)"
 	}
 }
