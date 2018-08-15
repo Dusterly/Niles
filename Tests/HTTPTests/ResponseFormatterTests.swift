@@ -15,15 +15,28 @@ class ResponseFormatterTests: XCTestCase {
 		let outputString = formatter.output(response: response)
 		XCTAssertTrue(outputString.contains(" 200 OK"), "'\(outputString)' does not contain '200 OK'.")
 	}
+
+	func testOutputsHeaders() {
+		let response = CustomizableResponse(headers: ["SomeHeader": "value"])
+		let outputString = formatter.output(response: response)
+		XCTAssertTrue(outputString.contains("SomeHeader: value"), "'\(outputString)' does not contain header 'SomeHeader: value'.")
+	}
 }
 
 private struct CustomizableResponse: Response {
-	var statusCode = StatusCode.ok
+	var statusCode: StatusCode
+	var headers: [String: String]
+
+	init(statusCode: StatusCode = .ok, headers: [String: String] = [:]) {
+		self.statusCode = statusCode
+		self.headers = headers
+	}
 }
 
 extension ResponseFormatterTests {
 	static let allTests = [
 		("testOutputsHTTPVersion", testOutputsHTTPVersion),
 		("testOutputsStatusCode", testOutputsStatusCode),
+		("testOutputsHeaders", testOutputsHeaders),
 	]
 }
