@@ -1,5 +1,11 @@
 import XCTest
 
 import HTTPTests
+import RoutingTests
 
-XCTMain(HTTPTests.allTests())
+let allTestSuites = [
+	HTTPTests.allTests(),
+	RoutingTests.allTests(),
+]
+
+XCTMain(allTestSuites.flatMap { $0 })

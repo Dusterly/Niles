@@ -74,3 +74,9 @@ public enum StatusCode: String {
 	case networkAuthenticationRequired = "511 Network Authentication Required"
 	case networkConnectTimeoutError = "599 Network Connect Timeout Error"
 }
+
+public extension StatusCode {
+	var isError: Bool {
+		return rawValue.hasPrefix("4") || rawValue.hasPrefix("5")
+	}
+}
