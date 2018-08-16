@@ -23,11 +23,21 @@ class RouterTests: XCTestCase {
 
 		XCTAssertFalse(didRoute)
 	}
+
+	func testDoesNotCallRouteWithDifferentPath() {
+		var didRoute = false
+		router.at("/somewhere", using: .get) { didRoute = true }
+
+		router.respond(to: Request(verb: .get, path: "/elsewhere"))
+
+		XCTAssertFalse(didRoute)
+	}
 }
 
 extension RouterTests {
 	static let allTests = [
 		("testCallsRouteWithMatchingVerbAndPath", testCallsRouteWithMatchingVerbAndPath),
 		("testDoesNotCallRouteWithDifferentVerb", testDoesNotCallRouteWithDifferentVerb),
+		("testDoesNotCallRouteWithDifferentPath", testDoesNotCallRouteWithDifferentPath),
 	]
 }
