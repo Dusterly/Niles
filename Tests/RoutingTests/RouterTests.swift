@@ -7,35 +7,44 @@ class RouterTests: XCTestCase {
 	let router = Router()
 
 	func testCallsRouteWithMatchingVerbAndPath() {
-		var didRoute = false
-		router.at("/", using: .get) { didRoute = true }
+		var handledRequest: Request?
+		router.at("/", using: .get) {
+			handledRequest = $0
+			return nil
+		}
 
 		_ = router.response(routing: Request(verb: .get, path: "/"))
 
-		XCTAssertTrue(didRoute)
+		XCTAssertEqual(handledRequest, Request(verb: .get, path: "/"))
 	}
 
 	func testDoesNotCallRouteWithDifferentVerb() {
-		var didRoute = false
-		router.at("/", using: .get) { didRoute = true }
+		var handledRequest: Request?
+		router.at("/", using: .get) {
+			handledRequest = $0
+			return nil
+		}
 
 		_ = router.response(routing: Request(verb: .post, path: "/"))
 
-		XCTAssertFalse(didRoute)
+		XCTAssertNil(handledRequest)
 	}
 
 	func testDoesNotCallRouteWithDifferentPath() {
-		var didRoute = false
-		router.at("/somewhere", using: .get) { didRoute = true }
+		var handledRequest: Request?
+		router.at("/somewhere", using: .get) {
+			handledRequest = $0
+			return nil
+		}
 
 		_ = router.response(routing: Request(verb: .get, path: "/elsewhere"))
 
-		XCTAssertFalse(didRoute)
+		XCTAssertNil(handledRequest)
 	}
 
 	func testReturnsResponse() {
 		let returnedResponse = CustomizableResponse(statusCode: .ok)
-		router.at("/", using: .get) { returnedResponse }
+		router.at("/", using: .get) { _ in returnedResponse }
 
 		let response = router.response(routing: Request(verb: .get, path: "/"))
 
@@ -51,7 +60,7 @@ class RouterTests: XCTestCase {
 	}
 
 	func testReturnsMethodNotAllowedIfWrongVerb() {
-		router.at("/", using: .get) { CustomizableResponse(statusCode: .ok) }
+		router.at("/", using: .get) { _ in CustomizableResponse(statusCode: .ok) }
 
 		let response = router.response(routing: Request(verb: .post, path: "/"))
 
@@ -74,6 +83,12 @@ private struct CustomizableResponse: Response {
 extension CustomizableResponse: Equatable {}
 private func == (lhs: CustomizableResponse, rhs: CustomizableResponse) -> Bool {
 	return lhs.statusCode == rhs.statusCode && lhs.headers == rhs.headers && lhs.body == rhs.body
+}
+
+extension Request: Equatable {}
+public func == (lhs: Request, rhs: Request) -> Bool {
+	return lhs.verb == rhs.verb && lhs.path == rhs.path && lhs.version == rhs.version &&
+		lhs.headers == rhs.headers && lhs.body == rhs.body
 }
 
 extension RouterTests {

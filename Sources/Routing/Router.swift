@@ -2,26 +2,20 @@ import Foundation
 import HTTP
 
 public class Router {
-	private var routes: [String: [Verb: (() -> Response)]] = [:]
+	public typealias Handler = (Request) -> Response?
+
+	private var routes: [String: [Verb: Handler]] = [:]
 
 	public init() {}
 
-	public func at(_ path: String, using verb: Verb, perform handler: @escaping () -> Void) {
-		at(path, using: verb) {
-			() -> Response in
-			handler()
-			return AutomaticResponse(statusCode: .noContent)
-		}
-	}
-
-	public func at(_ path: String, using verb: Verb, perform handler: @escaping () -> Response) {
+	public func at(_ path: String, using verb: Verb, perform handler: @escaping Handler) {
 		routes[path] = [verb: handler]
 	}
 
 	public func response(routing request: Request) -> Response {
 		guard let route = routes[request.path] else { return AutomaticResponse(statusCode: .notFound) }
-		guard let handleRequest = route[request.verb] else { return AutomaticResponse(statusCode: .methodNotAllowed) }
-		return handleRequest()
+		guard let handle = route[request.verb] else { return AutomaticResponse(statusCode: .methodNotAllowed) }
+		return handle(request) ?? AutomaticResponse(statusCode: .noContent)
 	}
 }
 
