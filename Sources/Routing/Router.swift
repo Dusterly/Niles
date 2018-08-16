@@ -10,7 +10,7 @@ public class Router {
 		at(path, using: verb) {
 			() -> Response in
 			handler()
-			return EmptyResponse()
+			return AutomaticResponse(statusCode: .noContent)
 		}
 	}
 
@@ -19,26 +19,14 @@ public class Router {
 	}
 
 	public func response(routing request: Request) -> Response {
-		guard let route = routes[request.path] else { return NotFoundResponse() }
-		guard let handleRequest = route[request.verb] else { return MethodNotAllowedResponse() }
+		guard let route = routes[request.path] else { return AutomaticResponse(statusCode: .notFound) }
+		guard let handleRequest = route[request.verb] else { return AutomaticResponse(statusCode: .methodNotAllowed) }
 		return handleRequest()
 	}
 }
 
-struct EmptyResponse: Response {
-	var statusCode: StatusCode { return .noContent }
-	var headers: [String : String] { return [:] }
-	var body: Data? { return nil }
-}
-
-struct NotFoundResponse: Response {
-	var statusCode: StatusCode { return .notFound }
-	var headers: [String : String] { return [:] }
-	var body: Data? { return nil }
-}
-
-struct MethodNotAllowedResponse: Response {
-	var statusCode: StatusCode { return .methodNotAllowed }
+struct AutomaticResponse: Response {
+	var statusCode: StatusCode
 	var headers: [String : String] { return [:] }
 	var body: Data? { return nil }
 }
