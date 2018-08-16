@@ -1,15 +1,15 @@
 import HTTP
 
 public class Router {
-	private var route: (() -> Void)?
+	private var routes: [Verb: (() -> Void)] = [:]
 
 	public init() {}
 
-	public func at(_ path: String, using: Verb, perform handler: @escaping () -> Void) {
-		route = handler
+	public func at(_ path: String, using verb: Verb, perform handler: @escaping () -> Void) {
+		routes[verb] = handler
 	}
 
 	public func respond(to request: Request) {
-		route?()
+		routes[request.verb]?()
 	}
 }

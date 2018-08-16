@@ -6,7 +6,7 @@ import Routing
 class RouterTests: XCTestCase {
 	let router = Router()
 
-	func testCallsRoute() {
+	func testCallsRouteWithMatchingVerbAndPath() {
 		var didRoute = false
 		router.at("/", using: .get) { didRoute = true }
 
@@ -14,10 +14,20 @@ class RouterTests: XCTestCase {
 
 		XCTAssertTrue(didRoute)
 	}
+
+	func testDoesNotCallRouteWithDifferentVerb() {
+		var didRoute = false
+		router.at("/", using: .get) { didRoute = true }
+
+		router.respond(to: Request(verb: .post, path: "/"))
+
+		XCTAssertFalse(didRoute)
+	}
 }
 
 extension RouterTests {
 	static let allTests = [
-		("testCallsRoute", testCallsRoute)
+		("testCallsRouteWithMatchingVerbAndPath", testCallsRouteWithMatchingVerbAndPath),
+		("testDoesNotCallRouteWithDifferentVerb", testDoesNotCallRouteWithDifferentVerb),
 	]
 }
