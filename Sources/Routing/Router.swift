@@ -18,7 +18,7 @@ public class Router {
 		routes[path] = [verb: handler]
 	}
 
-	public func respond(to request: Request) -> Response? {
+	public func response(routing request: Request) -> Response? {
 		return routes[request.path]?[request.verb]?()
 	}
 }

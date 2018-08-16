@@ -10,7 +10,7 @@ class RouterTests: XCTestCase {
 		var didRoute = false
 		router.at("/", using: .get) { didRoute = true }
 
-		_ = router.respond(to: Request(verb: .get, path: "/"))
+		_ = router.response(routing: Request(verb: .get, path: "/"))
 
 		XCTAssertTrue(didRoute)
 	}
@@ -19,7 +19,7 @@ class RouterTests: XCTestCase {
 		var didRoute = false
 		router.at("/", using: .get) { didRoute = true }
 
-		_ = router.respond(to: Request(verb: .post, path: "/"))
+		_ = router.response(routing: Request(verb: .post, path: "/"))
 
 		XCTAssertFalse(didRoute)
 	}
@@ -28,7 +28,7 @@ class RouterTests: XCTestCase {
 		var didRoute = false
 		router.at("/somewhere", using: .get) { didRoute = true }
 
-		_ = router.respond(to: Request(verb: .get, path: "/elsewhere"))
+		_ = router.response(routing: Request(verb: .get, path: "/elsewhere"))
 
 		XCTAssertFalse(didRoute)
 	}
@@ -37,7 +37,7 @@ class RouterTests: XCTestCase {
 		let returnedResponse = CustomizableResponse(statusCode: .ok)
 		router.at("/", using: .get) { returnedResponse }
 
-		let response = router.respond(to: Request(verb: .get, path: "/"))
+		let response = router.response(routing: Request(verb: .get, path: "/"))
 
 		XCTAssertEqual(response as? CustomizableResponse, returnedResponse)
 	}
