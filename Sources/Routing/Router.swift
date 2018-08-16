@@ -8,7 +8,7 @@ public class Router {
 
 	public init() {}
 
-	public func at(_ path: String, using verb: Verb, perform handler: @escaping Handler) {
+	public func respondToRequests(forPath path: String, using verb: Verb, with handler: @escaping Handler) {
 		routes[path] = [verb: handler]
 	}
 

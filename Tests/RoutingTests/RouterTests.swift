@@ -8,7 +8,7 @@ class RouterTests: XCTestCase {
 
 	func testCallsRouteWithMatchingVerbAndPath() {
 		var handledRequest: Request?
-		router.at("/", using: .get) {
+		router.respondToRequests(forPath: "/", using: .get) {
 			handledRequest = $0
 			return nil
 		}
@@ -20,7 +20,7 @@ class RouterTests: XCTestCase {
 
 	func testDoesNotCallRouteWithDifferentVerb() {
 		var handledRequest: Request?
-		router.at("/", using: .get) {
+		router.respondToRequests(forPath: "/", using: .get) {
 			handledRequest = $0
 			return nil
 		}
@@ -32,7 +32,7 @@ class RouterTests: XCTestCase {
 
 	func testDoesNotCallRouteWithDifferentPath() {
 		var handledRequest: Request?
-		router.at("/somewhere", using: .get) {
+		router.respondToRequests(forPath: "/somewhere", using: .get) {
 			handledRequest = $0
 			return nil
 		}
@@ -44,7 +44,7 @@ class RouterTests: XCTestCase {
 
 	func testReturnsResponse() {
 		let returnedResponse = CustomizableResponse(statusCode: .ok)
-		router.at("/", using: .get) { _ in returnedResponse }
+		router.respondToRequests(forPath: "/", using: .get) { _ in returnedResponse }
 
 		let response = router.response(routing: Request(verb: .get, path: "/"))
 
@@ -60,7 +60,7 @@ class RouterTests: XCTestCase {
 	}
 
 	func testReturnsMethodNotAllowedIfWrongVerb() {
-		router.at("/", using: .get) { _ in CustomizableResponse(statusCode: .ok) }
+		router.respondToRequests(forPath: "/", using: .get) { _ in CustomizableResponse(statusCode: .ok) }
 
 		let response = router.response(routing: Request(verb: .post, path: "/"))
 
@@ -68,7 +68,7 @@ class RouterTests: XCTestCase {
 	}
 
 	func testReturnsInternalServerErrorIfHandlerThrows() {
-		router.at("/", using: .get) { _ in throw TestError.generic }
+		router.respondToRequests(forPath: "/", using: .get) { _ in throw TestError.generic }
 
 		let response = router.response(routing: Request(verb: .get, path: "/"))
 
@@ -77,7 +77,7 @@ class RouterTests: XCTestCase {
 
 	func testReturnsThrownErrorIfResponse() {
 		let error = TestErrorResponse(statusCode: .badRequest)
-		router.at("/", using: .get) { _ in throw error }
+		router.respondToRequests(forPath: "/", using: .get) { _ in throw error }
 
 		let response = router.response(routing: Request(verb: .get, path: "/"))
 
@@ -86,7 +86,7 @@ class RouterTests: XCTestCase {
 
 	func testChangesStatusCodeIfThrownErrorNotErrorStatus() {
 		let error = TestErrorResponse(statusCode: .ok)
-		router.at("/", using: .get) { _ in throw error }
+		router.respondToRequests(forPath: "/", using: .get) { _ in throw error }
 
 		let response = router.response(routing: Request(verb: .get, path: "/"))
 
