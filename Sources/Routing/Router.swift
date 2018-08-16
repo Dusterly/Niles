@@ -2,7 +2,7 @@ import Foundation
 import HTTP
 
 public class Router {
-	public typealias Handler = (Request) -> Response?
+	public typealias Handler = (Request) throws -> Response?
 
 	private var routes: [String: [Verb: Handler]] = [:]
 
@@ -15,7 +15,13 @@ public class Router {
 	public func response(routing request: Request) -> Response {
 		guard let route = routes[request.path] else { return AutomaticResponse(statusCode: .notFound) }
 		guard let handle = route[request.verb] else { return AutomaticResponse(statusCode: .methodNotAllowed) }
-		return handle(request) ?? AutomaticResponse(statusCode: .noContent)
+		do {
+			return try handle(request) ?? AutomaticResponse(statusCode: .noContent)
+		} catch let response as Response where response.statusCode.isError {
+			return response
+		} catch {
+			return AutomaticResponse(statusCode: .internalServerError)
+		}
 	}
 }
 

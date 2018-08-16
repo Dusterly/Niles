@@ -66,6 +66,42 @@ class RouterTests: XCTestCase {
 
 		XCTAssertEqual(response.statusCode, .methodNotAllowed)
 	}
+
+	func testReturnsInternalServerErrorIfHandlerThrows() {
+		router.at("/", using: .get) { _ in throw TestError.generic }
+
+		let response = router.response(routing: Request(verb: .get, path: "/"))
+
+		XCTAssertEqual(response.statusCode, .internalServerError)
+	}
+
+	func testReturnsThrownErrorIfResponse() {
+		let error = TestErrorResponse(statusCode: .badRequest)
+		router.at("/", using: .get) { _ in throw error }
+
+		let response = router.response(routing: Request(verb: .get, path: "/"))
+
+		XCTAssertEqual(response.statusCode, .badRequest)
+	}
+
+	func testChangesStatusCodeIfThrownErrorNotErrorStatus() {
+		let error = TestErrorResponse(statusCode: .ok)
+		router.at("/", using: .get) { _ in throw error }
+
+		let response = router.response(routing: Request(verb: .get, path: "/"))
+
+		XCTAssertEqual(response.statusCode, .internalServerError)
+	}
+}
+
+private enum TestError: Error {
+	case generic
+}
+
+private struct TestErrorResponse: Response, Error {
+	var statusCode: StatusCode
+	let headers: [String: String] = [:]
+	let body: Data? = nil
 }
 
 private struct CustomizableResponse: Response {
@@ -99,5 +135,8 @@ extension RouterTests {
 		("testReturnsResponse", testReturnsResponse),
 		("testReturnsNotFoundIfMissingHandler", testReturnsNotFoundIfMissingHandler),
 		("testReturnsMethodNotAllowedIfWrongVerb", testReturnsMethodNotAllowedIfWrongVerb),
+		("testReturnsInternalServerErrorIfHandlerThrows", testReturnsInternalServerErrorIfHandlerThrows),
+		("testReturnsThrownErrorIfResponse", testReturnsThrownErrorIfResponse),
+		("testChangesStatusCodeIfThrownErrorNotErrorStatus", testChangesStatusCodeIfThrownErrorNotErrorStatus),
 	]
 }
