@@ -18,13 +18,27 @@ public class Router {
 		routes[path] = [verb: handler]
 	}
 
-	public func response(routing request: Request) -> Response? {
-		return routes[request.path]?[request.verb]?()
+	public func response(routing request: Request) -> Response {
+		guard let route = routes[request.path] else { return NotFoundResponse() }
+		guard let handleRequest = route[request.verb] else { return MethodNotAllowedResponse() }
+		return handleRequest()
 	}
 }
 
 struct EmptyResponse: Response {
 	var statusCode: StatusCode { return .noContent }
+	var headers: [String : String] { return [:] }
+	var body: Data? { return nil }
+}
+
+struct NotFoundResponse: Response {
+	var statusCode: StatusCode { return .notFound }
+	var headers: [String : String] { return [:] }
+	var body: Data? { return nil }
+}
+
+struct MethodNotAllowedResponse: Response {
+	var statusCode: StatusCode { return .methodNotAllowed }
 	var headers: [String : String] { return [:] }
 	var body: Data? { return nil }
 }

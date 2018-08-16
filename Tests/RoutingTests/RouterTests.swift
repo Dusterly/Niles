@@ -41,6 +41,22 @@ class RouterTests: XCTestCase {
 
 		XCTAssertEqual(response as? CustomizableResponse, returnedResponse)
 	}
+
+	func testReturnsNotFoundIfMissingHandler() {
+		// Given that no handler exists
+
+		let response = router.response(routing: Request(verb: .get, path: "/"))
+
+		XCTAssertEqual(response.statusCode, .notFound)
+	}
+
+	func testReturnsMethodNotAllowedIfWrongVerb() {
+		router.at("/", using: .get) { CustomizableResponse(statusCode: .ok) }
+
+		let response = router.response(routing: Request(verb: .post, path: "/"))
+
+		XCTAssertEqual(response.statusCode, .methodNotAllowed)
+	}
 }
 
 private struct CustomizableResponse: Response {
@@ -66,5 +82,7 @@ extension RouterTests {
 		("testDoesNotCallRouteWithDifferentVerb", testDoesNotCallRouteWithDifferentVerb),
 		("testDoesNotCallRouteWithDifferentPath", testDoesNotCallRouteWithDifferentPath),
 		("testReturnsResponse", testReturnsResponse),
+		("testReturnsNotFoundIfMissingHandler", testReturnsNotFoundIfMissingHandler),
+		("testReturnsMethodNotAllowedIfWrongVerb", testReturnsMethodNotAllowedIfWrongVerb),
 	]
 }
