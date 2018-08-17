@@ -5,8 +5,7 @@ private let regex = try! NSRegularExpression(pattern: "\\{(.*?)\\}|[^{}]+")
 public func properties(in path: String, matchingKeysIn pattern: String) -> [String: String]? {
 	var properties: [String: String] = [:]
 
-	let matches = regex.matches(in: pattern, range: NSRange(pattern.startIndex..., in: pattern))
-	let matches0 = matches.map { (it: NSTextCheckingResult) -> Match in
+	let matches = regex.matches(in: pattern, range: NSRange(pattern.startIndex..., in: pattern)).map { (it: NSTextCheckingResult) -> Match in
 		var groupRanges: [Range<String.Index>?] = []
 		for i in 0..<it.numberOfRanges { groupRanges.append(it.range(at: i, in: pattern)) }
 		let entireRange = it.range(in: pattern)!
@@ -19,7 +18,7 @@ public func properties(in path: String, matchingKeysIn pattern: String) -> [Stri
 	}
 
 	var currentPathIndex = path.startIndex
-	for (match, next) in zip(matches0, matches0.dropFirst()) {
+	for (match, next) in zip(matches, matches.dropFirst()) {
 		if let key = match.groups[1] {
 			guard let nextIndex = path.range(of: next.entireMatch, range: currentPathIndex..<path.endIndex)?.lowerBound else { return nil }
 
@@ -32,7 +31,7 @@ public func properties(in path: String, matchingKeysIn pattern: String) -> [Stri
 		}
 	}
 
-	let match = matches0.last!
+	let match = matches.last!
 
 	if let key = match.groups[1] {
 		let value = String(path[currentPathIndex...])
