@@ -92,6 +92,18 @@ class RouterTests: XCTestCase {
 
 		XCTAssertEqual(response.statusCode, .internalServerError)
 	}
+
+	func testPassesArgumentsToHandler() {
+		var pathArguments: [String: String]?
+		router.respondToRequests(forPath: "/{arg}", using: .get) {
+			pathArguments = $1
+			return nil
+		}
+
+		_ = router.response(routing: Request(verb: .get, path: "/yo"))
+
+		XCTAssertEqual(pathArguments, ["arg": "yo"])
+	}
 }
 
 private enum TestError: Error {
@@ -138,5 +150,6 @@ extension RouterTests {
 		("testReturnsInternalServerErrorIfHandlerThrows", testReturnsInternalServerErrorIfHandlerThrows),
 		("testReturnsThrownErrorIfResponse", testReturnsThrownErrorIfResponse),
 		("testChangesStatusCodeIfThrownErrorNotErrorStatus", testChangesStatusCodeIfThrownErrorNotErrorStatus),
+		("testPassesArgumentsToHandler", testPassesArgumentsToHandler),
 	]
 }

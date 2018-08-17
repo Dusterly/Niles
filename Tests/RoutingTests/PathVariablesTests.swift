@@ -28,8 +28,7 @@ class PathVariablesTests: XCTestCase {
 	}
 }
 
-extension PathVariablesTests
-{
+extension PathVariablesTests {
 	static let allTests = [
 		("testReturnsNilIfPathsDoNotMatch", testReturnsNilIfPathsDoNotMatch),
 		("testReturnsEmptyDictionaryForPathWithNoArguments", testReturnsEmptyDictionaryForPathWithNoArguments),

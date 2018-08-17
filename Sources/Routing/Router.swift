@@ -3,30 +3,36 @@ import HTTP
 
 public class Router {
 	public typealias Handler = (Request) throws -> Response?
+	public typealias HandlerWithArguments = (Request, [String: String]) throws -> Response?
 
-	private var routes: [String: [Verb: Handler]] = [:]
+	private var routes: [String: [Verb: HandlerWithArguments]] = [:]
 
 	public init() {}
 
 	public func respondToRequests(forPath path: String, using verb: Verb, with handler: @escaping Handler) {
+		routes[path] = [verb: { request, _ in try handler(request) }]
+	}
+
+	public func respondToRequests(forPath path: String, using verb: Verb, with handler: @escaping HandlerWithArguments) {
 		routes[path] = [verb: handler]
 	}
 
 	public func response(routing request: Request) -> Response {
-		guard let route = routes[request.path] else {
+		guard let (handlers, parameters) = self.routes(forPath: request.path) else {
 			return AutomaticResponse(
 				statusCode: .notFound,
 				body: "No resource exists for path '\(request.path)'."
 			)
 		}
-		guard let handle = route[request.verb] else {
+		guard let handle = handlers[request.verb] else {
 			return AutomaticResponse(
 				statusCode: .methodNotAllowed,
 				body: "Method \(request.verb) is not supported for \(request.path)"
 			)
 		}
+
 		do {
-			return try handle(request) ?? AutomaticResponse(statusCode: .noContent)
+			return try handle(request, parameters) ?? AutomaticResponse(statusCode: .noContent)
 		} catch let response as Response where response.statusCode.isError {
 			return response
 		} catch {
@@ -35,6 +41,15 @@ public class Router {
 				body: error.localizedDescription
 			)
 		}
+	}
+
+	private func routes(forPath path: String) -> ([Verb: HandlerWithArguments], [String: String])? {
+		if let simplePathHandlers = routes[path] { return (simplePathHandlers, [:]) }
+
+		return routes.compactMap { (key, handlers) -> ([Verb: HandlerWithArguments], [String: String])? in
+			guard let parameters = extractVariables(from: path, matching: key) else { return nil }
+			return (handlers, parameters)
+		}.first
 	}
 }
 
