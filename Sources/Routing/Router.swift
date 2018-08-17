@@ -46,8 +46,8 @@ public class Router {
 	private func routes(forPath path: String) -> ([Verb: HandlerWithArguments], [String: String])? {
 		if let simplePathHandlers = routes[path] { return (simplePathHandlers, [:]) }
 
-		return routes.compactMap { (key, handlers) -> ([Verb: HandlerWithArguments], [String: String])? in
-			guard let parameters = extractVariables(from: path, matching: key) else { return nil }
+		return routes.compactMap { (pattern, handlers) -> ([Verb: HandlerWithArguments], [String: String])? in
+			guard let parameters = properties(in: path, matchingKeysIn: pattern) else { return nil }
 			return (handlers, parameters)
 		}.first
 	}

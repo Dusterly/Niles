@@ -2,8 +2,8 @@ import Foundation
 
 private let regex = try! NSRegularExpression(pattern: "\\{(.*?)\\}|[^{}]+")
 
-public func extractVariables(from path: String, matching pattern: String) -> [String: String]? {
-	var variables: [String: String] = [:]
+public func properties(in path: String, matchingKeysIn pattern: String) -> [String: String]? {
+	var properties: [String: String] = [:]
 
 	let matches = regex.matches(in: pattern, range: NSRange(pattern.startIndex..., in: pattern))
 	let matches0 = matches.map { (it: NSTextCheckingResult) -> Match in
@@ -24,7 +24,7 @@ public func extractVariables(from path: String, matching pattern: String) -> [St
 			guard let nextIndex = path.range(of: next.entireMatch, range: currentPathIndex..<path.endIndex)?.lowerBound else { return nil }
 
 			let value = String(path[currentPathIndex..<nextIndex])
-			variables[key] = value
+			properties[key] = value
 		} else {
 			let textRange = match.entireRange
 			guard let range = path.range(of: pattern[textRange], range: currentPathIndex..<path.endIndex) else { return nil }
@@ -36,13 +36,13 @@ public func extractVariables(from path: String, matching pattern: String) -> [St
 
 	if let key = match.groups[1] {
 		let value = String(path[currentPathIndex...])
-		variables[key] = value
+		properties[key] = value
 	} else {
 		let textRange = match.entireRange
 		if path.range(of: pattern[textRange], range: currentPathIndex..<path.endIndex) == nil { return nil }
 	}
 
-	return variables
+	return properties
 }
 
 private struct Match {

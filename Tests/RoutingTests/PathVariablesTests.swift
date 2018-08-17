@@ -4,27 +4,27 @@ import Routing
 
 class PathVariablesTests: XCTestCase {
 	func testReturnsNilIfPathsDoNotMatch() {
-		XCTAssertNil(extractVariables(from: "/some/path", matching: "/some/other/path"))
+		XCTAssertNil(properties(in: "/some/path", matchingKeysIn: "/some/other/path"))
 	}
 
 	func testReturnsEmptyDictionaryForPathWithNoArguments() {
-		XCTAssertEqual(extractVariables(from: "/", matching: "/"), [:])
+		XCTAssertEqual(properties(in: "/", matchingKeysIn: "/"), [:])
 	}
 
 	func testPassesArgumentsToHandler() {
-		XCTAssertEqual(extractVariables(from: "/yo", matching: "/{arg}"), ["arg": "yo"])
+		XCTAssertEqual(properties(in: "/yo", matchingKeysIn: "/{arg}"), ["arg": "yo"])
 	}
 
 	func testMatchesAnyPartOfPath() {
-		XCTAssertEqual(extractVariables(from: "/some/path?id=yo", matching: "/some/path?id={arg}"), ["arg": "yo"])
+		XCTAssertEqual(properties(in: "/some/path?id=yo", matchingKeysIn: "/some/path?id={arg}"), ["arg": "yo"])
 	}
 
 	func testFindsMultipleVariables() {
-		XCTAssertEqual(extractVariables(from: "/some/path?min=1&max=2", matching: "/some/path?min={min}&max={max}"), ["min": "1", "max": "2"])
+		XCTAssertEqual(properties(in: "/some/path?min=1&max=2", matchingKeysIn: "/some/path?min={min}&max={max}"), ["min": "1", "max": "2"])
 	}
 
 	func testReturnsNilIfMultipleVariablesDoNotMatch() {
-		XCTAssertNil(extractVariables(from: "/some/path?min=1&mux=2", matching: "/some/path?min={min}&max={max}"))
+		XCTAssertNil(properties(in: "/some/path?min=1&mux=2", matchingKeysIn: "/some/path?min={min}&max={max}"))
 	}
 }
 
