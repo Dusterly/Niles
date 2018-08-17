@@ -3,28 +3,28 @@ import HTTP
 
 public class Router {
 	public typealias Handler = (Request) throws -> Response?
-	public typealias HandlerWithArguments = (Request, [String: String]) throws -> Response?
+	public typealias HandlerWithParameters = (Request, [String: String]) throws -> Response?
 
-	private var routes: [String: [Verb: HandlerWithArguments]] = [:]
+	private var routes: [String: [Verb: HandlerWithParameters]] = [:]
 
 	public init() {}
 
 	public func respondToRequests(forPath path: String, using verb: Verb, with handler: @escaping Handler) {
-		routes[path] = [verb: { request, _ in try handler(request) }]
+		respondToRequests(forPath: path, using: verb) { request, _ in try handler(request) }
 	}
 
-	public func respondToRequests(forPath path: String, using verb: Verb, with handler: @escaping HandlerWithArguments) {
+	public func respondToRequests(forPath path: String, using verb: Verb, with handler: @escaping HandlerWithParameters) {
 		routes[path] = [verb: handler]
 	}
 
 	public func response(routing request: Request) -> Response {
-		guard let (handlers, parameters) = self.routes(forPath: request.path) else {
+		guard let (handlers, parameters) = handlersAndParameters(forPath: request.path) else {
 			return AutomaticResponse(
 				statusCode: .notFound,
 				body: "No resource exists for path '\(request.path)'."
 			)
 		}
-		guard let handle = handlers[request.verb] else {
+		guard let handler = handlers[request.verb] else {
 			return AutomaticResponse(
 				statusCode: .methodNotAllowed,
 				body: "Method \(request.verb) is not supported for \(request.path)"
@@ -32,7 +32,7 @@ public class Router {
 		}
 
 		do {
-			return try handle(request, parameters) ?? AutomaticResponse(statusCode: .noContent)
+			return try reponse(for: request, calling: handler, withParameters: parameters)
 		} catch let response as Response where response.statusCode.isError {
 			return response
 		} catch {
@@ -43,13 +43,20 @@ public class Router {
 		}
 	}
 
-	private func routes(forPath path: String) -> ([Verb: HandlerWithArguments], [String: String])? {
+	private func handlersAndParameters(forPath path: String) -> ([Verb: HandlerWithParameters], [String: String])? {
 		if let simplePathHandlers = routes[path] { return (simplePathHandlers, [:]) }
 
-		return routes.compactMap { (pattern, handlers) -> ([Verb: HandlerWithArguments], [String: String])? in
+		return routes.compactMap { (pattern, handlers) -> ([Verb: HandlerWithParameters], [String: String])? in
 			guard let parameters = properties(in: path, matchingKeysIn: pattern) else { return nil }
 			return (handlers, parameters)
 		}.first
+	}
+
+	private func reponse(
+			for request: Request,
+			calling handle: HandlerWithParameters,
+			withParameters parameters: [String: String]) throws -> Response {
+		return try handle(request, parameters) ?? AutomaticResponse(statusCode: .noContent)
 	}
 }
 
