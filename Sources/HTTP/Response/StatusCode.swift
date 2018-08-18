@@ -1,3 +1,5 @@
+// swiftlint:disable identifier_name
+
 public enum StatusCode: String {
 	// Source: https://httpstatuses.com
 

@@ -8,5 +8,7 @@
 	"files.exclude": {
 		".build": true,
 		"*.xcodeproj": true
-	}
+	},
+
+	"swiftlint.enable": true
 }

@@ -13,7 +13,11 @@ public class Router {
 		respondToRequests(forPath: path, using: verb) { request, _ in try handler(request) }
 	}
 
-	public func respondToRequests(forPath path: String, using verb: Verb, with handler: @escaping HandlerWithParameters) {
+	public func respondToRequests(
+			forPath path: String,
+			using verb: Verb,
+			with handler: @escaping HandlerWithParameters) {
+
 		routes[path] = [verb: handler]
 	}
 
@@ -43,7 +47,9 @@ public class Router {
 		}
 	}
 
-	private func handlersAndParameters(forPath path: String) -> ([Verb: HandlerWithParameters], [String: String])? {
+	private func handlersAndParameters(
+			forPath path: String) -> ([Verb: HandlerWithParameters], [String: String])? {
+
 		if let simplePathHandlers = routes[path] { return (simplePathHandlers, [:]) }
 
 		return routes.compactMap { (pattern, handlers) -> ([Verb: HandlerWithParameters], [String: String])? in
@@ -62,7 +68,7 @@ public class Router {
 
 struct AutomaticResponse: Response {
 	var statusCode: StatusCode
-	var headers: [String : String] { return [:] }
+	var headers: [String: String] { return [:] }
 	var body: Data?
 
 	init(statusCode: StatusCode, body: String? = nil) {

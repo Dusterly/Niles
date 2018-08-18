@@ -20,7 +20,10 @@ class PathVariablesTests: XCTestCase {
 	}
 
 	func testFindsMultipleVariables() {
-		XCTAssertEqual(properties(in: "/some/path?min=1&max=2", matchingKeysIn: "/some/path?min={min}&max={max}"), ["min": "1", "max": "2"])
+		let props = properties(
+			in: "/some/path?min=1&max=2",
+			matchingKeysIn: "/some/path?min={min}&max={max}")
+		XCTAssertEqual(props, ["min": "1", "max": "2"])
 	}
 
 	func testReturnsNilIfMultipleVariablesDoNotMatch() {

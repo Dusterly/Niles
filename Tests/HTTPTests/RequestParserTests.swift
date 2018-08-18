@@ -65,11 +65,13 @@ class RequestParserTests: XCTestCase {
 		XCTAssertEqual(string(fromASCII: request.body), "body")
 	}
 
+// swiftlint:disable force_unwrapping
 	private func request(with text: String) throws -> Request {
 		let data = text.data(using: .ascii)!
 		let stream = InputStream(openWith: data)
 		return try parser.request(reading: stream)
 	}
+// swiftlint:enable force_unwrapping
 
 	private func string(fromASCII data: Data?) -> String? {
 		guard let data = data else { return nil }
