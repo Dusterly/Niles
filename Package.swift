@@ -6,7 +6,7 @@ let package = Package(
 	products: [
 		.library(
 			name: "HTTP",
-			targets: ["HTTP"]),
+			targets: ["HTTP", "Routing", "POSIXSockets"]),
 	],
 	targets: [
 		.target(
