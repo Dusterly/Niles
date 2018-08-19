@@ -5,6 +5,7 @@ public func allTests() -> [XCTestCaseEntry] {
 	return [
 		testCase(PathVariablesTests.allTests),
 		testCase(RouterTests.allTests),
+		testCase(ProcessingTests.allTests),
 	]
 }
 #endif

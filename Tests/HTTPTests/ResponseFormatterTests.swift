@@ -5,41 +5,42 @@ import HTTP
 class ResponseFormatterTests: XCTestCase {
 	let formatter = ResponseFormatter(httpVersion: "HTTP/1.1")
 
-	func testOutputsHTTPVersion() {
-		let outputString = output(formatting: CustomizableResponse())
+	func testOutputsHTTPVersion() throws {
+		let outputString = try output(formatting: CustomizableResponse())
 		XCTAssertTrue(outputString.hasPrefix("HTTP/1.1 "), "'\(outputString)' does not start with 'HTTP/1.1 '.")
 	}
 
-	func testOutputsStatusCode() {
-		let outputString = output(formatting: CustomizableResponse(statusCode: .ok))
+	func testOutputsStatusCode() throws {
+		let outputString = try output(formatting: CustomizableResponse(statusCode: .ok))
 		assert(outputString, matchesRegularExpression: " 200 OK$")
 	}
 
-	func testOutputsHeaders() {
-		let outputString = output(formatting: CustomizableResponse(headers: ["SomeHeader": "value"]))
+	func testOutputsHeaders() throws {
+		let outputString = try output(formatting: CustomizableResponse(headers: ["SomeHeader": "value"]))
 		assert(outputString, matchesRegularExpression: "^SomeHeader: value$")
 	}
 
-	func testOutputsBody() {
-		let outputString = output(formatting: CustomizableResponse(body: "body"))
+	func testOutputsBody() throws {
+		let outputString = try output(formatting: CustomizableResponse(body: "body"))
 		assert(outputString, matchesRegularExpression: "^Content-Length: 4$")
 		assert(outputString, matchesRegularExpression: "^\\r\\nbody$")
 	}
 
-	func testHonorsExplicitContentLength() {
-		let outputString = output(formatting: CustomizableResponse(headers: ["Content-Length": "3"], body: "body"))
+	func testHonorsExplicitContentLength() throws {
+		let response = CustomizableResponse(headers: ["Content-Length": "3"], body: "body")
+		let outputString = try output(formatting: response)
 		assert(outputString, matchesRegularExpression: "^Content-Length: 3$")
 		assert(outputString, matchesRegularExpression: "^\\r\\nbody$")
 	}
 
-	func testOutputsEmptyNewlineEvenIfNoBody() {
-		let outputString = output(formatting: CustomizableResponse(statusCode: .noContent))
+	func testOutputsEmptyNewlineEvenIfNoBody() throws {
+		let outputString = try output(formatting: CustomizableResponse(statusCode: .noContent))
 		assert(outputString, matchesRegularExpression: "\\r\\n\\r\\n$")
 	}
 
-	private func output(formatting response: Response) -> String {
+	private func output(formatting response: Response) throws -> String {
 		let output = VisibleOutput()
-		formatter.write(response: response, to: output)
+		try formatter.write(response: response, to: output)
 		return output.string
 	}
 

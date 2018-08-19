@@ -1,5 +1,5 @@
 import Foundation
 
 public protocol DataWritable {
-	func write(_ data: Data)
+	func write(_ data: Data) throws
 }

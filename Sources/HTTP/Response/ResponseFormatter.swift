@@ -7,17 +7,17 @@ public class ResponseFormatter {
 		self.httpVersion = httpVersion
 	}
 
-	public func write(response: Response, to output: DataWritable) {
-		output.writeLine("\(httpVersion) \(response.statusCode.rawValue)")
+	public func write(response: Response, to output: DataWritable) throws {
+		try output.writeLine("\(httpVersion) \(response.statusCode.rawValue)")
 
 		let headers = response.headersAddingContentLength
 		for (header, value) in headers {
-			output.writeLine("\(header): \(value)")
+			try output.writeLine("\(header): \(value)")
 		}
-		output.writeLine()
+		try output.writeLine()
 
 		if let body = response.body {
-			output.write(body)
+			try output.write(body)
 		}
 	}
 }
@@ -34,12 +34,12 @@ private extension Response {
 }
 
 private extension DataWritable {
-	func writeLine(_ line: String = "") {
-		write("\(line)\r\n")
+	func writeLine(_ line: String = "") throws {
+		try write("\(line)\r\n")
 	}
 
-	func write(_ string: String) {
+	func write(_ string: String) throws {
 		guard let data = string.data(using: .ascii) else { return }
-		write(data)
+		try write(data)
 	}
 }

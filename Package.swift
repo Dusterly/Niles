@@ -21,6 +21,10 @@ let package = Package(
 			dependencies: ["HTTP"]),
 		.testTarget(
 			name: "RoutingTests",
+			dependencies: ["Routing", "POSIXSockets"]),
+
+		.target(
+			name: "POSIXSockets",
 			dependencies: ["Routing"]),
 	]
 )
