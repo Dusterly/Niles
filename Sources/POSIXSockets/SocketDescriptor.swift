@@ -1,7 +1,7 @@
 import Foundation
 
-struct RawSocket {
-	let descriptor: Int32
+public struct SocketDescriptor {
+	public let rawValue: Int32
 }
 
 @discardableResult

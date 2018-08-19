@@ -4,16 +4,16 @@ import Routing
 public typealias InetPort = UInt16
 
 public struct POSIXServerSocket {
-	fileprivate let raw: RawSocket
+	public let descriptor: SocketDescriptor
 
 	public init(listeningOn port: InetPort = 80, maxPendingConnections: Int32 = SOMAXCONN) throws {
-		raw = try RawSocket.ipv6()
+		descriptor = try SocketDescriptor.ipv6()
 
 		do {
 			try acquire(port: port)
-			try raw.listen(maxPendingConnections: maxPendingConnections)
+			try descriptor.listen(maxPendingConnections: maxPendingConnections)
 		} catch let error {
-			raw.close()
+			descriptor.close()
 			throw error
 		}
 	}
@@ -21,19 +21,19 @@ public struct POSIXServerSocket {
 
 extension POSIXServerSocket: ServerSocket {
 	public func nextClient() throws -> POSIXClientSocket {
-		let clientSocket: RawSocket = try raw.accept()
-		return POSIXClientSocket(raw: clientSocket)
+		let clientSocket: SocketDescriptor = try descriptor.accept()
+		return POSIXClientSocket(descriptor: clientSocket)
 	}
 
 	public func close() {
-		raw.close()
+		descriptor.close()
 	}
 }
 
 private extension POSIXServerSocket {
 	func acquire(port: InetPort) throws {
 		let localhost = sockaddr_in6(localhostAt: port)
-		try raw.acquire(address: localhost)
+		try descriptor.acquire(address: localhost)
 	}
 }
 

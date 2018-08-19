@@ -2,7 +2,7 @@ import Foundation
 import Routing
 
 public struct POSIXClientSocket {
-	let raw: RawSocket
+	public let descriptor: SocketDescriptor
 }
 
 extension POSIXClientSocket: ClientSocket {
@@ -10,18 +10,18 @@ extension POSIXClientSocket: ClientSocket {
 		if length == 0 { return Data() }
 
 		var buffer = [UInt8](repeating: 0, count: length)
-		let actualCount = try raw.receive(&buffer)
+		let actualCount = try descriptor.receive(&buffer)
 		return Data(bytes: buffer, count: actualCount)
 	}
 
 	public func write(_ data: Data) throws {
 		let bytes = Array(data)
 		try bytes.withUnsafeBufferPointer {
-			try raw.send($0)
+			try descriptor.send($0)
 		}
 	}
 
 	public func close() {
-		raw.close()
+		descriptor.close()
 	}
 }
