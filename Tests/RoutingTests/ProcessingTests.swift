@@ -21,7 +21,7 @@ class ProcessingTests: XCTestCase {
 
 		XCTAssertNil(response.error)
 		XCTAssertEqual(response.response?.statusCode, 200)
-		XCTAssertEqual(response.body, "hello, world".data(using: .ascii))
+		XCTAssertEqual(response.body.flatMap { String(data: $0, encoding: .ascii) }, "hello, world")
 	}
 
 	func testClosesPort() throws {
