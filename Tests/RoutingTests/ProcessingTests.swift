@@ -9,7 +9,8 @@ import POSIXSockets
 
 class ProcessingTests: XCTestCase {
 	func testRespondsOnPOSIXSockets() throws {
-		startProcessing(listeningOn: 8000)
+		let router = self.router(respondingWith: "hello, world", atPath: "/")
+		listenInBackground(onPort: 8000, routedBy: router)
 
 		let response = responseToEmptyRequest(at: URL(string: "http://localhost:8000/")!)
 
@@ -18,11 +19,15 @@ class ProcessingTests: XCTestCase {
 		XCTAssertEqual(response.body, "hello, world".data(using: .ascii))
 	}
 
-	private func startProcessing(listeningOn port: InetPort) {
-		let socket = try! POSIXServerSocket(listeningOn: port)
+	private func router(respondingWith body: String, atPath path: String) -> Router {
 		let router = Router()
-		router.respondToRequests(forPath: "/", using: .get) { _ in "hello, world" }
+		router.respondToRequests(forPath: path, using: .get) { _ in body }
+		return router
+	}
+
+	private func listenInBackground(onPort port: InetPort, routedBy router: Router) {
 		DispatchQueue.global(qos: .background).async {
+			let socket = try! POSIXServerSocket(listeningOn: port)
 			socket.processRequests(routedBy: router)
 		}
 	}
