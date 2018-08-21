@@ -1,6 +1,5 @@
 // swiftlint:disable force_try
 // swiftlint:disable force_unwrapping
-// swiftlint:disable large_tuple
 
 import XCTest
 import Foundation
@@ -12,11 +11,11 @@ class ProcessingTests: XCTestCase {
 	func testRespondsOnPOSIXSockets() throws {
 		startProcessing(listeningOn: 8000)
 
-		let (error, response, data) = responseToEmptyRequest(at: URL(string: "http://localhost:8000/")!)
+		let response = responseToEmptyRequest(at: URL(string: "http://localhost:8000/")!)
 
-		XCTAssertNil(error)
-		XCTAssertEqual(response?.statusCode, 200)
-		XCTAssertEqual(data, "hello, world".data(using: .ascii))
+		XCTAssertNil(response.error)
+		XCTAssertEqual(response.response?.statusCode, 200)
+		XCTAssertEqual(response.body, "hello, world".data(using: .ascii))
 	}
 
 	private func startProcessing(listeningOn port: InetPort) {
@@ -28,7 +27,7 @@ class ProcessingTests: XCTestCase {
 		}
 	}
 
-	private func responseToEmptyRequest(at url: URL) -> (Error?, HTTPURLResponse?, Data?) {
+	private func responseToEmptyRequest(at url: URL) -> SessionTaskResponse {
 		var error: Error?
 		var response: HTTPURLResponse?
 		var data: Data?
@@ -42,8 +41,14 @@ class ProcessingTests: XCTestCase {
 			expectation.fulfill()
 		}.resume()
 		waitForExpectations(timeout: 1)
-		return (error, response, data)
+		return SessionTaskResponse(error: error, response: response, body: data)
 	}
+}
+
+private struct SessionTaskResponse {
+	var error: Error?
+	var response: HTTPURLResponse?
+	var body: Data?
 }
 
 extension String: Response {
