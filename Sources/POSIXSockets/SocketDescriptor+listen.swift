@@ -3,6 +3,7 @@ import Foundation
 #if !os(macOS)
 // swiftlint:disable identifier_name
 let SOCK_STREAM = Int32(Foundation.SOCK_STREAM.rawValue)
+let SHUT_RDWR = Int32(Foundation.SHUT_RDWR)
 // swiftlint:enable identifier_name
 #endif
 
@@ -42,6 +43,7 @@ extension SocketDescriptor {
 	}
 
 	func close() {
+		shutdown(rawValue, SHUT_RDWR)
 		_ = Foundation.close(rawValue)
 	}
 }

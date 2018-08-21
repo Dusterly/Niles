@@ -1,4 +1,3 @@
-// swiftlint:disable force_try
 // swiftlint:disable force_unwrapping
 
 import XCTest
@@ -8,9 +7,15 @@ import Routing
 import POSIXSockets
 
 class ProcessingTests: XCTestCase {
+	var socket: POSIXServerSocket?
+
+	override func tearDown() {
+		socket?.close()
+	}
+
 	func testRespondsOnPOSIXSockets() throws {
 		let router = self.router(respondingWith: "hello, world", atPath: "/")
-		listenInBackground(onPort: 8000, routedBy: router)
+		socket = try listenInBackground(onPort: 8000, routedBy: router)
 
 		let response = responseToEmptyRequest(at: URL(string: "http://localhost:8000/")!)
 
@@ -19,17 +24,29 @@ class ProcessingTests: XCTestCase {
 		XCTAssertEqual(response.body, "hello, world".data(using: .ascii))
 	}
 
+	func testClosesPort() throws {
+		let router = self.router(respondingWith: "hello, world", atPath: "/hello")
+		let socket = try listenInBackground(onPort: 8000, routedBy: router)
+		_ = responseToEmptyRequest(at: URL(string: "http://localhost:8000/")!)
+		socket.close()
+		self.socket = try listenInBackground(onPort: 8000, routedBy: router)
+	}
+
 	private func router(respondingWith body: String, atPath path: String) -> Router {
 		let router = Router()
 		router.respondToRequests(forPath: path, using: .get) { _ in body }
 		return router
 	}
 
-	private func listenInBackground(onPort port: InetPort, routedBy router: Router) {
+	private func listenInBackground(
+			onPort port: InetPort,
+			routedBy router: Router) throws  -> POSIXServerSocket {
+
+		let socket = try POSIXServerSocket(listeningOn: port)
 		DispatchQueue.global(qos: .background).async {
-			let socket = try! POSIXServerSocket(listeningOn: port)
 			socket.processRequests(routedBy: router)
 		}
+		return socket
 	}
 
 	private func responseToEmptyRequest(at url: URL) -> SessionTaskResponse {
@@ -65,5 +82,6 @@ extension String: Response {
 extension ProcessingTests {
 	static let allTests = [
 		("testRespondsOnPOSIXSockets", testRespondsOnPOSIXSockets),
+		("testClosesPort", testClosesPort),
 	]
 }

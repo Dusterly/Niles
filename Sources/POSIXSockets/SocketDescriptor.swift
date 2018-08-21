@@ -18,7 +18,7 @@ var lastErrorMessage: String {
 	return String(cString: cString, encoding: .ascii) ?? defaultDescription
 }
 
-enum SocketError: Error {
+public enum SocketError: Error {
 	case noStream
 	case withDescription(String)
 }
