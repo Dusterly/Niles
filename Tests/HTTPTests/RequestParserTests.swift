@@ -6,68 +6,68 @@ class RequestParserTests: XCTestCase {
 	let parser = RequestParser()
 
 	func testThrowsForMalformedRequest() {
-		XCTAssertThrowsError(try self.request(with: "invalid request"))
+		XCTAssertThrowsError(try self.request(withContent: "invalid request"))
 	}
 
 	func testRecognizesGETVerb() throws {
-		let request = try self.request(with: "GET /path HTTP/1.1\n")
+		let request = try self.request(withContent: "GET /path HTTP/1.1\n")
 		XCTAssertEqual(request.verb, .get)
 	}
 
 	func testRecognizesPOSTVerb() throws {
-		let request = try self.request(with: "POST /path HTTP/1.1\n" +
+		let request = try self.request(withContent: "POST /path HTTP/1.1\n" +
 			"Content-Length: 4\n\n" +
 			"body")
 		XCTAssertEqual(request.verb, .post)
 	}
 
 	func testRecognizesPath() throws {
-		let request = try self.request(with: "GET /path HTTP/1.1\n")
+		let request = try self.request(withContent: "GET /path HTTP/1.1\n")
 		XCTAssertEqual(request.path, "/path")
 	}
 
 	func testDecodesPathToUTF8() throws {
-		let request = try self.request(with: "GET /f%C3%B6retag HTTP/1.1\n")
+		let request = try self.request(withContent: "GET /f%C3%B6retag HTTP/1.1\n")
 		XCTAssertEqual(request.path, "/företag")
 	}
 
 	func testRecognizesVersion() throws {
-		let request = try self.request(with: "GET /path HTTP/1.1\n")
+		let request = try self.request(withContent: "GET /path HTTP/1.1\n")
 		XCTAssertEqual(request.version, "HTTP/1.1")
 	}
 
 	func testDoesNotRequireNewlineAfterGET() throws {
-		let request = try self.request(with: "GET /path HTTP/1.1")
+		let request = try self.request(withContent: "GET /path HTTP/1.1")
 		XCTAssertEqual(request.version, "HTTP/1.1")
 	}
 
 	func testIgnoresCarriageReturn() throws {
-		let request = try self.request(with: "GET /path HTTP/1.1\r\n")
+		let request = try self.request(withContent: "GET /path HTTP/1.1\r\n")
 		XCTAssertEqual(request.version, "HTTP/1.1")
 	}
 
 	func testRecognizesHeaders() throws {
-		let request = try self.request(with: "GET /path HTTP/1.1\n" +
+		let request = try self.request(withContent: "GET /path HTTP/1.1\n" +
 			"SomeHeader: some value\n\n")
 		XCTAssertEqual(request.headers["SomeHeader"], "some value")
 	}
 
 	func testAllowsColonInHeaderValues() throws {
-		let request = try self.request(with: "GET /path HTTP/1.1\n" +
+		let request = try self.request(withContent: "GET /path HTTP/1.1\n" +
 			"SomeHeader: value: x\n\n")
 		XCTAssertEqual(request.headers["SomeHeader"], "value: x")
 	}
 
 	func testRecognizesBody() throws {
-		let request = try self.request(with: "POST /path HTTP/1.1\n" +
+		let request = try self.request(withContent: "POST /path HTTP/1.1\n" +
 			"Content-Length: 4\n\n" +
 			"body")
 		XCTAssertEqual(string(fromASCII: request.body), "body")
 	}
 
 // swiftlint:disable force_unwrapping
-	private func request(with text: String) throws -> Request {
-		let data = text.data(using: .ascii)!
+	private func request(withContent content: String) throws -> Request {
+		let data = content.data(using: .ascii)!
 		let stream = InputStream(openWith: data)
 		return try parser.request(reading: stream)
 	}
