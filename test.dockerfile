@@ -1,4 +1,4 @@
-FROM swift:4.1.3
+FROM swift:4.2
 ADD . /src
 WORKDIR /src
 RUN swift test
